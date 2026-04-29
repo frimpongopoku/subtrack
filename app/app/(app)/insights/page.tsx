@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useGroupsContext } from "@/contexts/GroupsContext";
@@ -41,6 +42,16 @@ function KPICard({
   );
 }
 
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const cardVariant = {
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.34, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+};
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function InsightsPage() {
   const { user }          = useAuth();
@@ -78,34 +89,32 @@ export default function InsightsPage() {
   const RANK_COLORS = ["#ef4444", "#f97316", "#f59e0b", "var(--accent)", "var(--blue)"];
 
   return (
-    <div className="ani" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      style={{ display: "flex", flexDirection: "column", gap: 22 }}
+    >
 
       {/* KPI row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-        <KPICard
-          title="Monthly Recurring" value={`$${monthly.toFixed(2)}`}
-          sub={`${active.length} active service${active.length !== 1 ? "s" : ""}`}
-          Icon={DollarSign} accent="var(--accent)"
-        />
-        <KPICard
-          title="Annual Projected" value={`$${annual.toFixed(0)}`}
-          sub="At current rate"
-          Icon={TrendingUp} accent="var(--blue)"
-        />
-        <KPICard
-          title="Due Next 30 Days" value={`$${next30Total.toFixed(2)}`}
-          sub={`${next30.length} renewal${next30.length !== 1 ? "s" : ""} upcoming`}
-          Icon={Calendar} accent="var(--amber)" borderColor="var(--amber)"
-        />
-        <KPICard
-          title="Potential Savings" value={`$${pausedAmt.toFixed(2)}/mo`}
-          sub="Cancel all paused services"
-          Icon={Zap} accent="var(--green)" borderColor="var(--green)"
-        />
-      </div>
+      <motion.div
+        variants={containerVariants}
+        style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}
+      >
+        {[
+          { title: "Monthly Recurring", value: `$${monthly.toFixed(2)}`,   sub: `${active.length} active service${active.length !== 1 ? "s" : ""}`, Icon: DollarSign, accent: "var(--accent)" },
+          { title: "Annual Projected",  value: `$${annual.toFixed(0)}`,    sub: "At current rate", Icon: TrendingUp, accent: "var(--blue)" },
+          { title: "Due Next 30 Days",  value: `$${next30Total.toFixed(2)}`, sub: `${next30.length} renewal${next30.length !== 1 ? "s" : ""} upcoming`, Icon: Calendar, accent: "var(--amber)", borderColor: "var(--amber)" },
+          { title: "Potential Savings", value: `$${pausedAmt.toFixed(2)}/mo`, sub: "Cancel all paused services", Icon: Zap, accent: "var(--green)", borderColor: "var(--green)" },
+        ].map((card) => (
+          <motion.div key={card.title} variants={cardVariant}>
+            <KPICard {...card} />
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Top expenses + waste */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+      <motion.div variants={cardVariant} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
 
         {/* Top expenses */}
         <div style={{
@@ -140,7 +149,12 @@ export default function InsightsPage() {
                       <span style={{ fontSize: 11, color: "var(--text3)", minWidth: 34, textAlign: "right" }}>{pct.toFixed(0)}%</span>
                     </div>
                     <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 100, overflow: "hidden" }}>
-                      <div style={{ height: "100%", borderRadius: 100, width: `${pct}%`, background: RANK_COLORS[i] ?? "var(--accent)", transition: "width 0.8s ease" }} />
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ height: "100%", borderRadius: 100, background: RANK_COLORS[i] ?? "var(--accent)" }}
+                      />
                     </div>
                   </div>
                 );
@@ -196,14 +210,17 @@ export default function InsightsPage() {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Spend by category */}
       {groupBreakdown.length > 0 && (
-        <div style={{
-          background: "var(--surface)", border: "1px solid var(--border)",
-          borderRadius: 14, padding: 22,
-        }}>
+        <motion.div
+          variants={cardVariant}
+          style={{
+            background: "var(--surface)", border: "1px solid var(--border)",
+            borderRadius: 14, padding: 22,
+          }}
+        >
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Spend by Category</div>
           <div style={{ fontSize: 12, color: "var(--text3)", marginBottom: 20 }}>Monthly cost breakdown across your groups</div>
 
@@ -245,18 +262,21 @@ export default function InsightsPage() {
             <>
               <div style={{ height: 10, borderRadius: 100, overflow: "hidden", display: "flex" }}>
                 {groupBreakdown.map((g) => (
-                  <div key={g.id} style={{
-                    height: "100%", background: g.color,
-                    width: `${(g.total / monthly) * 100}%`,
-                    transition: "width 0.8s ease",
-                  }} />
+                  <motion.div
+                    key={g.id}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(g.total / monthly) * 100}%` }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ height: "100%", background: g.color }}
+                  />
                 ))}
                 {ungroupedTotal > 0 && (
-                  <div style={{
-                    height: "100%", background: "var(--text3)",
-                    width: `${(ungroupedTotal / monthly) * 100}%`,
-                    transition: "width 0.8s ease",
-                  }} />
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(ungroupedTotal / monthly) * 100}%` }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ height: "100%", background: "var(--text3)" }}
+                  />
                 )}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px", marginTop: 10 }}>
@@ -269,17 +289,20 @@ export default function InsightsPage() {
               </div>
             </>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Status summary */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+      <motion.div
+        variants={containerVariants}
+        style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}
+      >
         {([
           { label: "Active",    items: active,    amt: monthly,   color: "var(--green)", bg: "var(--greenbg)" },
           { label: "Paused",    items: paused,    amt: pausedAmt, color: "var(--amber)", bg: "var(--amberbg)" },
           { label: "Cancelled", items: cancelled, amt: cancelled.reduce((a, s) => a + s.amount, 0), color: "var(--red)", bg: "var(--redbg)" },
         ] as const).map((row) => (
-          <div key={row.label} style={{
+          <motion.div key={row.label} variants={cardVariant} style={{
             padding: "18px 20px", borderRadius: 14,
             background: row.bg, border: `1px solid ${row.color}28`,
           }}>
@@ -287,9 +310,9 @@ export default function InsightsPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: row.color, marginTop: 4 }}>{row.label} Services</div>
             <div style={{ fontSize: 12, color: "var(--text3)", marginTop: 6 }}>${row.amt.toFixed(2)}/mo</div>
             <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 1 }}>${(row.amt * 12).toFixed(0)}/year</div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Empty state when no data */}
       {subscriptions.length === 0 && (
@@ -302,6 +325,6 @@ export default function InsightsPage() {
           <div style={{ fontSize: 13, color: "var(--text3)" }}>Add subscriptions to see your spending insights</div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

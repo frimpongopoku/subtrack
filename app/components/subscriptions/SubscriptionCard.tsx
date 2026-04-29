@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { RefreshCw, Pause, Play, Edit2, X, Trash2 } from "lucide-react";
 import { Subscription } from "@/types/subscription";
@@ -40,24 +41,16 @@ export function SubscriptionCard({ sub, groups, index, onEdit, onRenew, onStatus
     ts?.toDate?.().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) ?? "—";
 
   return (
-    <div style={{
-      background: "var(--surface)", border: "1px solid var(--border)",
-      borderRadius: 14, padding: 18,
-      display: "flex", flexDirection: "column", gap: 14,
-      transition: "all 0.18s ease", cursor: "pointer",
-      animation: `fadeInUp 0.28s ease ${index * 0.04}s both`,
-    }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.background = "var(--surface2)";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border2)";
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 10px 36px rgba(0,0,0,0.28)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.background = "var(--surface)";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
-        (e.currentTarget as HTMLDivElement).style.transform = "none";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(0,0,0,0.32)" }}
+      style={{
+        background: "var(--surface)", border: "1px solid var(--border)",
+        borderRadius: 14, padding: 18,
+        display: "flex", flexDirection: "column", gap: 14,
+        cursor: "pointer",
       }}
     >
       {/* Header */}
@@ -165,6 +158,6 @@ export function SubscriptionCard({ sub, groups, index, onEdit, onRenew, onStatus
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

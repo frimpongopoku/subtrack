@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ChevronDown, Plus, RefreshCw, Pause, Trash2, Edit2 } from "lucide-react";
 import { Group } from "@/types/group";
@@ -28,7 +29,7 @@ const BTN_SM: React.CSSProperties = {
 };
 
 export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen = false }: Props) {
-  const { user }      = useAuth();
+  const { user }        = useAuth();
   const [open, setOpen] = useState(defaultOpen);
 
   const active  = subscriptions.filter((s) => s.status === "subscribed");
@@ -59,11 +60,14 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
   }
 
   return (
-    <div style={{
-      background: "var(--surface)", border: "1px solid var(--border)",
-      backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
-      borderRadius: 14, overflow: "hidden", transition: "all 0.2s ease",
-    }}>
+    <motion.div
+      layout
+      style={{
+        background: "var(--surface)", border: "1px solid var(--border)",
+        backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+        borderRadius: 14, overflow: "hidden",
+      }}
+    >
       {/* Header */}
       <div
         onClick={() => setOpen((v) => !v)}
@@ -94,15 +98,17 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
           background: group.color + "1a", color: group.color, flexShrink: 0,
         }}>${(monthly * 12).toFixed(0)}/yr</div>
 
-        <div style={{
-          width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-          background: "var(--surface2)", border: "1px solid var(--border)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          transform: open ? "rotate(180deg)" : "none",
-          transition: "transform 0.22s ease",
-        }}>
+        <motion.div
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.22, ease: "easeInOut" }}
+          style={{
+            width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+            background: "var(--surface2)", border: "1px solid var(--border)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
           <ChevronDown size={14} />
-        </div>
+        </motion.div>
       </div>
 
       {/* Progress bar */}
@@ -117,92 +123,109 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
       </div>
 
       {/* Expanded content */}
-      {open && (
-        <div style={{ padding: "0 22px 20px", animation: "fadeInUp 0.2s ease both" }}>
-          <div style={{ height: 1, background: "var(--border)", marginBottom: 14 }} />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            style={{ overflow: "hidden" }}
+          >
+            <div style={{ padding: "0 22px 20px" }}>
+              <div style={{ height: 1, background: "var(--border)", marginBottom: 14 }} />
 
-          {subscriptions.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text3)", fontSize: 13 }}>
-              No subscriptions in this group yet
+              {subscriptions.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text3)", fontSize: 13 }}>
+                  No subscriptions in this group yet
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {[...subscriptions].sort((a, b) =>
+                    (a.nextDueDate?.toDate?.().getTime() ?? 0) - (b.nextDueDate?.toDate?.().getTime() ?? 0)
+                  ).map((sub, i) => {
+                    const dueTs  = sub.nextDueDate ? sub.nextDueDate.toDate().getTime() / 1000 : 0;
+                    const days   = Math.ceil((dueTs - Date.now() / 1000) / 86400);
+                    const urgent = days <= 7 && sub.status !== "cancelled";
+                    return (
+                      <motion.div
+                        key={sub.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.22, delay: i * 0.04, ease: "easeOut" }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 13,
+                          padding: "11px 14px", borderRadius: 11,
+                          background: "var(--surface2)", border: "1px solid var(--border)",
+                        }}
+                      >
+                        <div style={{
+                          width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                          background: group.color + "20", overflow: "hidden",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 10, fontWeight: 800, color: group.color,
+                        }}>
+                          {sub.logoUrl ? (
+                            <Image src={sub.logoUrl} alt={sub.name} width={34} height={34}
+                              style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+                          ) : sub.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase()}
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 600 }}>{sub.name}</div>
+                          <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 1 }}>{sub.description}</div>
+                        </div>
+
+                        <div style={{
+                          fontSize: 11, fontWeight: urgent ? 600 : 400,
+                          color: urgent ? "var(--amber)" : "var(--text3)",
+                          marginRight: 8, flexShrink: 0,
+                        }}>
+                          Due {fmt(sub.nextDueDate)}
+                        </div>
+
+                        <StatusBadge status={sub.status} />
+
+                        <div style={{ fontWeight: 800, fontSize: 15, minWidth: 60, textAlign: "right", flexShrink: 0 }}>
+                          ${sub.amount.toFixed(2)}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Group actions */}
+              <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+                <button className="btn-sm" style={BTN_SM} onClick={onAddSub}>
+                  <Plus size={12} />Add Subscription
+                </button>
+                {active.length > 0 && (
+                  <button className="btn-sm" style={BTN_SM} onClick={handleRenewAll}>
+                    <RefreshCw size={12} />Renew All
+                  </button>
+                )}
+                {active.length > 0 && (
+                  <button className="btn-sm" style={BTN_SM} onClick={handlePauseAll}>
+                    <Pause size={12} />Pause All
+                  </button>
+                )}
+                <button className="btn-sm" style={BTN_SM} onClick={() => onEdit(group)}>
+                  <Edit2 size={12} />Edit Group
+                </button>
+                <button
+                  className="btn-danger"
+                  style={{ ...BTN_SM, marginLeft: "auto", color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
+                  onClick={handleDelete}
+                >
+                  <Trash2 size={12} />Delete Group
+                </button>
+              </div>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[...subscriptions].sort((a, b) =>
-                (a.nextDueDate?.toDate?.().getTime() ?? 0) - (b.nextDueDate?.toDate?.().getTime() ?? 0)
-              ).map((sub) => {
-                const dueTs  = sub.nextDueDate ? sub.nextDueDate.toDate().getTime() / 1000 : 0;
-                const days   = Math.ceil((dueTs - Date.now() / 1000) / 86400);
-                const urgent = days <= 7 && sub.status !== "cancelled";
-                return (
-                  <div key={sub.id} style={{
-                    display: "flex", alignItems: "center", gap: 13,
-                    padding: "11px 14px", borderRadius: 11,
-                    background: "var(--surface2)", border: "1px solid var(--border)",
-                  }}>
-                    <div style={{
-                      width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                      background: group.color + "20", overflow: "hidden",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 10, fontWeight: 800, color: group.color,
-                    }}>
-                      {sub.logoUrl ? (
-                        <Image src={sub.logoUrl} alt={sub.name} width={34} height={34}
-                          style={{ objectFit: "cover", width: "100%", height: "100%" }} />
-                      ) : sub.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase()}
-                    </div>
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 600 }}>{sub.name}</div>
-                      <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 1 }}>{sub.description}</div>
-                    </div>
-
-                    <div style={{
-                      fontSize: 11, fontWeight: urgent ? 600 : 400,
-                      color: urgent ? "var(--amber)" : "var(--text3)",
-                      marginRight: 8, flexShrink: 0,
-                    }}>
-                      Due {fmt(sub.nextDueDate)}
-                    </div>
-
-                    <StatusBadge status={sub.status} />
-
-                    <div style={{ fontWeight: 800, fontSize: 15, minWidth: 60, textAlign: "right", flexShrink: 0 }}>
-                      ${sub.amount.toFixed(2)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Group actions */}
-          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-            <button className="btn-sm" style={BTN_SM} onClick={onAddSub}>
-              <Plus size={12} />Add Subscription
-            </button>
-            {active.length > 0 && (
-              <button className="btn-sm" style={BTN_SM} onClick={handleRenewAll}>
-                <RefreshCw size={12} />Renew All
-              </button>
-            )}
-            {active.length > 0 && (
-              <button className="btn-sm" style={BTN_SM} onClick={handlePauseAll}>
-                <Pause size={12} />Pause All
-              </button>
-            )}
-            <button className="btn-sm" style={BTN_SM} onClick={() => onEdit(group)}>
-              <Edit2 size={12} />Edit Group
-            </button>
-            <button
-              className="btn-danger"
-              style={{ ...BTN_SM, marginLeft: "auto", color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
-              onClick={handleDelete}
-            >
-              <Trash2 size={12} />Delete Group
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

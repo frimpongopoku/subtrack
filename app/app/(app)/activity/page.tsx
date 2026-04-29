@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActivityLogs } from "@/hooks/useActivityLogs";
 import { ActivityLog, LogType } from "@/types/log";
@@ -28,7 +29,6 @@ function fmt(log: ActivityLog): string {
   return ts.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// Group logs by calendar date
 function groupByDate(logs: ActivityLog[]): { label: string; logs: ActivityLog[] }[] {
   const map = new Map<string, ActivityLog[]>();
   for (const log of logs) {
@@ -37,7 +37,7 @@ function groupByDate(logs: ActivityLog[]): { label: string; logs: ActivityLog[] 
     const today = new Date();
     const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
     let key: string;
-    if (ts.toDateString() === today.toDateString())     key = "Today";
+    if (ts.toDateString() === today.toDateString())          key = "Today";
     else if (ts.toDateString() === yesterday.toDateString()) key = "Yesterday";
     else key = ts.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     if (!map.has(key)) map.set(key, []);
@@ -46,10 +46,20 @@ function groupByDate(logs: ActivityLog[]): { label: string; logs: ActivityLog[] 
   return Array.from(map.entries()).map(([label, logs]) => ({ label, logs }));
 }
 
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -12 },
+  show:   { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+};
+
 export default function ActivityPage() {
-  const { user }       = useAuth();
+  const { user }          = useAuth();
   const { logs, loading } = useActivityLogs(user?.uid);
-  const groups         = groupByDate(logs);
+  const groups            = groupByDate(logs);
 
   if (loading) {
     return (
@@ -66,21 +76,31 @@ export default function ActivityPage() {
 
   if (logs.length === 0) {
     return (
-      <div className="ani" style={{
-        textAlign: "center", padding: "80px 0",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
-      }}>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{
+          textAlign: "center", padding: "80px 0",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+        }}
+      >
         <Activity size={40} color="var(--text3)" />
         <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text2)" }}>No activity yet</div>
         <div style={{ fontSize: 13, color: "var(--text3)" }}>
           Actions like renewals, pauses, and edits will appear here
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="ani" style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      style={{ display: "flex", flexDirection: "column", gap: 28 }}
+    >
       {groups.map(({ label, logs: dayLogs }) => (
         <div key={label}>
           {/* Date header */}
@@ -93,12 +113,12 @@ export default function ActivityPage() {
           {/* Log entries */}
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {dayLogs.map((log, i) => {
-              const meta = LOG_META[log.type] ?? LOG_META.edited;
-              const Icon = meta.Icon;
+              const meta   = LOG_META[log.type] ?? LOG_META.edited;
+              const Icon   = meta.Icon;
               const isLast = i === dayLogs.length - 1;
 
               return (
-                <div key={log.id} style={{ display: "flex", gap: 14, position: "relative" }}>
+                <motion.div key={log.id} variants={itemVariants} style={{ display: "flex", gap: 14, position: "relative" }}>
                   {/* Timeline line */}
                   {!isLast && (
                     <div style={{
@@ -144,12 +164,12 @@ export default function ActivityPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
       ))}
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { CreditCard, ArrowUpDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
@@ -147,17 +148,25 @@ service cloud.firestore {
               key={f}
               onClick={() => setStatusFilter(f)}
               className={statusFilter === f ? "" : "seg-btn"}
-              style={{
-                ...SEG,
-                background: statusFilter === f ? "rgba(124,110,247,0.2)" : "transparent",
-                color:      statusFilter === f ? "var(--accent)" : "var(--text2)",
-              }}
+              style={{ ...SEG, position: "relative", color: statusFilter === f ? "var(--accent)" : "var(--text2)" }}
             >
-              {f === "all" ? "All" : f === "subscribed" ? "Active" : f.charAt(0).toUpperCase() + f.slice(1)}
-              <span style={{
-                marginLeft: 5, fontSize: 10,
-                background: "rgba(255,255,255,0.07)", borderRadius: 10, padding: "1px 6px",
-              }}>{counts[f]}</span>
+              {statusFilter === f && (
+                <motion.div
+                  layoutId="status-pill"
+                  style={{
+                    position: "absolute", inset: 0, borderRadius: 7,
+                    background: "rgba(124,110,247,0.2)", zIndex: 0,
+                  }}
+                  transition={{ type: "spring", stiffness: 380, damping: 34 }}
+                />
+              )}
+              <span style={{ position: "relative", zIndex: 1 }}>
+                {f === "all" ? "All" : f === "subscribed" ? "Active" : f.charAt(0).toUpperCase() + f.slice(1)}
+                <span style={{
+                  marginLeft: 5, fontSize: 10,
+                  background: "rgba(255,255,255,0.07)", borderRadius: 10, padding: "1px 6px",
+                }}>{counts[f]}</span>
+              </span>
             </button>
           ))}
         </div>
