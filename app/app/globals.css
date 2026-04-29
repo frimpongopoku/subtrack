@@ -56,3 +56,65 @@ body {
 }
 
 .ani { animation: fadeInUp 0.28s ease both; }
+
+/* ── Hover utility classes ────────────────────────────────────────────────── */
+
+/* Sidebar / settings nav items */
+.nav-item:not(.nav-active):hover {
+  background: rgba(255,255,255,0.055) !important;
+  color: rgba(255,255,255,0.82) !important;
+  border-color: var(--border) !important;
+}
+
+/* Segment / filter tab buttons */
+.seg-btn:hover {
+  background: rgba(255,255,255,0.07) !important;
+  color: rgba(255,255,255,0.82) !important;
+}
+
+/* Small surface buttons (card actions, group actions) */
+.btn-sm:hover {
+  background: var(--surface2) !important;
+  border-color: var(--border2) !important;
+  color: rgba(255,255,255,0.82) !important;
+}
+
+/* Danger variant hover */
+.btn-danger:hover {
+  background: rgba(239,68,68,0.22) !important;
+  border-color: rgba(239,68,68,0.35) !important;
+}
+
+/* Ghost / icon-only buttons */
+.btn-ghost:hover {
+  background: var(--surface2) !important;
+  color: rgba(255,255,255,0.82) !important;
+}
+
+/* Dashed "create" outline button */
+.btn-dashed:hover {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.22) !important;
+  color: rgba(255,255,255,0.82) !important;
+}
+
+/* Primary gradient button */
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Sign-out / small icon buttons */
+.btn-icon:hover {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+/* Modal close / secondary buttons */
+.btn-secondary:hover {
+  background: var(--surface2) !important;
+  border-color: var(--border2) !important;
+}
+
+/* Ensure all interactive elements show pointer */
+button { cursor: pointer; }
+a      { cursor: pointer; }

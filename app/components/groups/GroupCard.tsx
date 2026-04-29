@@ -177,23 +177,24 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
 
           {/* Group actions */}
           <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-            <button style={BTN_SM} onClick={onAddSub}>
+            <button className="btn-sm" style={BTN_SM} onClick={onAddSub}>
               <Plus size={12} />Add Subscription
             </button>
             {active.length > 0 && (
-              <button style={BTN_SM} onClick={handleRenewAll}>
+              <button className="btn-sm" style={BTN_SM} onClick={handleRenewAll}>
                 <RefreshCw size={12} />Renew All
               </button>
             )}
             {active.length > 0 && (
-              <button style={BTN_SM} onClick={handlePauseAll}>
+              <button className="btn-sm" style={BTN_SM} onClick={handlePauseAll}>
                 <Pause size={12} />Pause All
               </button>
             )}
-            <button style={BTN_SM} onClick={() => onEdit(group)}>
+            <button className="btn-sm" style={BTN_SM} onClick={() => onEdit(group)}>
               <Edit2 size={12} />Edit Group
             </button>
             <button
+              className="btn-danger"
               style={{ ...BTN_SM, marginLeft: "auto", color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
               onClick={handleDelete}
             >

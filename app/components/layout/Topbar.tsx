@@ -78,16 +78,18 @@ export function Topbar() {
         <span style={{ fontSize: 11, color: "var(--text3)" }}>/mo</span>
       </div>
 
-      <button style={{
+      <button className="btn-ghost" style={{
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         padding: "7px 10px", borderRadius: 10, marginRight: 8,
         background: "var(--surface)", color: "var(--text2)",
         border: "1px solid var(--border)", cursor: "pointer",
+        transition: "all 0.15s ease",
       }}>
         <Bell size={16} />
       </button>
 
       <button
+        className="btn-primary"
         onClick={openAdd}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
@@ -96,6 +98,7 @@ export function Topbar() {
           color: "#fff", border: "none",
           fontSize: 13, fontWeight: 600, fontFamily: "inherit",
           cursor: "pointer", whiteSpace: "nowrap",
+          transition: "all 0.15s ease",
         }}
       >
         <Plus size={14} color="white" />Add New

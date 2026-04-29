@@ -146,6 +146,7 @@ service cloud.firestore {
             <button
               key={f}
               onClick={() => setStatusFilter(f)}
+              className={statusFilter === f ? "" : "seg-btn"}
               style={{
                 ...SEG,
                 background: statusFilter === f ? "rgba(124,110,247,0.2)" : "transparent",
@@ -169,12 +170,14 @@ service cloud.firestore {
         }}>
           <button
             onClick={() => setGroupFilter("all")}
+            className={groupFilter === "all" ? "" : "seg-btn"}
             style={{ ...SEG, background: groupFilter === "all" ? "rgba(124,110,247,0.2)" : "transparent", color: groupFilter === "all" ? "var(--accent)" : "var(--text2)" }}
           >All Groups</button>
           {groups.map((g) => (
             <button
               key={g.id}
               onClick={() => setGroupFilter(g.id)}
+              className={groupFilter === g.id ? "" : "seg-btn"}
               style={{ ...SEG, background: groupFilter === g.id ? "rgba(124,110,247,0.2)" : "transparent", color: groupFilter === g.id ? "var(--accent)" : "var(--text2)" }}
             >{g.name}</button>
           ))}

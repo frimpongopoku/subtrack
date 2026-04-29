@@ -150,12 +150,13 @@ export function GroupFormModal({ onClose, group }: Props) {
                 {isEdit ? <Save size={14} /> : <Plus size={14} />}
                 {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Group"}
               </button>
-              <button type="button" onClick={onClose} style={{
+              <button type="button" onClick={onClose} className="btn-secondary" style={{
                 flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center",
                 padding: "9px 16px", borderRadius: 10,
                 background: "var(--surface)", color: "var(--text2)",
                 border: "1px solid var(--border)",
                 fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer",
+                transition: "all 0.15s ease",
               }}>Cancel</button>
             </div>
           </div>

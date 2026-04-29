@@ -58,7 +58,7 @@ export function Sidebar() {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
-              <div style={{
+              <div className={active ? "nav-active" : "nav-item"} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 12px", borderRadius: 10,
                 fontSize: 13.5, fontWeight: 500,
@@ -100,7 +100,7 @@ export function Sidebar() {
         ) : (
           groups.map((g) => (
             <Link key={g.id} href="/groups" style={{ textDecoration: "none" }}>
-              <div style={{
+              <div className="nav-item" style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 12px", borderRadius: 10,
                 fontSize: 13, fontWeight: 500, color: "var(--text2)",
@@ -118,7 +118,7 @@ export function Sidebar() {
       <div style={{ height: 1, background: "var(--border)", margin: "10px 4px 8px" }} />
 
       <Link href="/settings" style={{ textDecoration: "none" }}>
-        <div style={{
+        <div className={pathname === "/settings" ? "nav-active" : "nav-item"} style={{
           display: "flex", alignItems: "center", gap: 10,
           padding: "9px 12px", borderRadius: 10,
           fontSize: 13.5, fontWeight: 500,
@@ -160,7 +160,8 @@ export function Sidebar() {
         <button
           onClick={handleSignOut}
           title="Sign out"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "var(--text3)", display: "flex" }}
+          className="btn-icon"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "var(--text3)", display: "flex", transition: "color 0.15s" }}
         >
           <LogOut size={14} />
         </button>

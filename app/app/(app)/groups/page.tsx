@@ -104,6 +104,7 @@ export default function GroupsPage() {
 
           {/* Create new group button */}
           <button
+            className="btn-dashed"
             onClick={() => setGroupModal("create")}
             style={{
               width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,

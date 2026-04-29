@@ -128,26 +128,27 @@ export function SubscriptionCard({ sub, groups, index, onEdit, onRenew, onStatus
       {/* Actions */}
       <div style={{ display: "flex", gap: 6, borderTop: "1px solid var(--border)", paddingTop: 13 }}>
         {sub.status !== "cancelled" && (
-          <button style={BTN} onClick={() => onRenew(sub)}>
+          <button className="btn-sm" style={BTN} onClick={() => onRenew(sub)}>
             <RefreshCw size={12} />Renew
           </button>
         )}
         {sub.status === "subscribed" && (
-          <button style={BTN} onClick={() => onStatus(sub, "paused")}>
+          <button className="btn-sm" style={BTN} onClick={() => onStatus(sub, "paused")}>
             <Pause size={12} />Pause
           </button>
         )}
         {sub.status === "paused" && (
-          <button style={{ ...BTN, color: "var(--green)", borderColor: "rgba(34,197,94,0.25)" }}
+          <button className="btn-sm" style={{ ...BTN, color: "var(--green)", borderColor: "rgba(34,197,94,0.25)" }}
             onClick={() => onStatus(sub, "subscribed")}>
             <Play size={12} />Resume
           </button>
         )}
-        <button style={BTN} onClick={() => onEdit(sub)}>
+        <button className="btn-sm" style={BTN} onClick={() => onEdit(sub)}>
           <Edit2 size={12} />Edit
         </button>
         {sub.status !== "cancelled" && (
           <button
+            className="btn-danger"
             style={{ ...BTN, color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
             onClick={() => onStatus(sub, "cancelled")}
           >
@@ -156,6 +157,7 @@ export function SubscriptionCard({ sub, groups, index, onEdit, onRenew, onStatus
         )}
         {sub.status === "cancelled" && (
           <button
+            className="btn-danger"
             style={{ ...BTN, color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
             onClick={() => onDelete(sub)}
           >
