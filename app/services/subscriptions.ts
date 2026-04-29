@@ -4,6 +4,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firestore";
 import { SubscriptionInput, RenewalPeriod } from "@/types/subscription";
+import { addLog } from "./logs";
 
 function subsCol(uid: string) {
   return collection(db, "users", uid, "subscriptions");
@@ -20,18 +21,25 @@ export async function createSubscription(uid: string, data: SubscriptionInput): 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+  await addLog(uid, docRef.id, { subName: data.name, type: "created", note: "Subscription added" });
   return docRef.id;
 }
 
-export async function updateSubscription(uid: string, id: string, data: Partial<SubscriptionInput>) {
+export async function updateSubscription(uid: string, id: string, data: Partial<SubscriptionInput>, subName?: string) {
   await updateDoc(subDoc(uid, id), { ...data, updatedAt: serverTimestamp() });
+  if (subName) {
+    await addLog(uid, id, { subName, type: "edited", note: "Subscription updated" });
+  }
 }
 
 export async function deleteSubscription(uid: string, id: string) {
   await deleteDoc(subDoc(uid, id));
 }
 
-export async function renewSubscription(uid: string, id: string, period: RenewalPeriod, currentDue: Timestamp) {
+export async function renewSubscription(
+  uid: string, id: string, period: RenewalPeriod,
+  currentDue: Timestamp, subName?: string
+) {
   const next = new Date(currentDue.toDate());
   switch (period) {
     case "weekly":    next.setDate(next.getDate() + 7);           break;
@@ -44,8 +52,33 @@ export async function renewSubscription(uid: string, id: string, period: Renewal
     status:      "subscribed",
     updatedAt:   serverTimestamp(),
   });
+  if (subName) {
+    await addLog(uid, id, {
+      subName, type: "renewed",
+      note: `Renewed — next due ${next.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`,
+      newStatus: "subscribed",
+    });
+  }
 }
 
-export async function changeStatus(uid: string, id: string, status: "subscribed" | "paused" | "cancelled") {
+export async function changeStatus(
+  uid: string, id: string,
+  status: "subscribed" | "paused" | "cancelled",
+  subName?: string, previousStatus?: string
+) {
   await updateDoc(subDoc(uid, id), { status, updatedAt: serverTimestamp() });
+  if (subName) {
+    const typeMap: Record<string, "paused" | "resumed" | "cancelled"> = {
+      paused:     "paused",
+      subscribed: "resumed",
+      cancelled:  "cancelled",
+    };
+    await addLog(uid, id, {
+      subName,
+      type:           typeMap[status],
+      note:           `Status changed to ${status}`,
+      previousStatus: previousStatus,
+      newStatus:      status,
+    });
+  }
 }

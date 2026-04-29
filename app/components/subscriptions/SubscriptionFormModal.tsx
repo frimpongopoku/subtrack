@@ -130,7 +130,7 @@ export function SubscriptionFormModal({ onClose, subscription }: Props) {
     };
 
     if (isEdit) {
-      await updateSubscription(user.uid, subscription!.id, data);
+      await updateSubscription(user.uid, subscription!.id, data, values.name);
       // Handle logo update
       if (logoFile) {
         const url = await uploadLogo(user.uid, subscription!.id, logoFile);

@@ -41,14 +41,14 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
   async function handleRenewAll() {
     if (!user) return;
     await Promise.all(
-      active.map((s) => renewSubscription(user.uid, s.id, s.renewalPeriod, s.nextDueDate))
+      active.map((s) => renewSubscription(user.uid, s.id, s.renewalPeriod, s.nextDueDate, s.name))
     );
   }
 
   async function handlePauseAll() {
     if (!user) return;
     await Promise.all(
-      active.map((s) => changeStatus(user.uid, s.id, "paused"))
+      active.map((s) => changeStatus(user.uid, s.id, "paused", s.name, s.status))
     );
   }
 

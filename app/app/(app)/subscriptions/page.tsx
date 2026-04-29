@@ -81,12 +81,12 @@ export default function SubscriptionsPage() {
 
   async function handleRenew(sub: Subscription) {
     if (!user) return;
-    await renewSubscription(user.uid, sub.id, sub.renewalPeriod, sub.nextDueDate);
+    await renewSubscription(user.uid, sub.id, sub.renewalPeriod, sub.nextDueDate, sub.name);
   }
 
   async function handleStatus(sub: Subscription, status: "subscribed" | "paused" | "cancelled") {
     if (!user) return;
-    await changeStatus(user.uid, sub.id, status);
+    await changeStatus(user.uid, sub.id, status, sub.name, sub.status);
   }
 
   async function handleDelete(sub: Subscription) {
