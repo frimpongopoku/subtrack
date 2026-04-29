@@ -1,0 +1,13 @@
+# Screenshots from testing
+*.png
+*.jpg
+*.jpeg
+
+# macOS
+.DS_Store
+
+# Playwright artifacts
+.playwright-mcp/
+
+# env files
+.env*
