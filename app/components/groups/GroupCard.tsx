@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ChevronDown, Plus, RefreshCw, Pause, Trash2, Edit2 } from "lucide-react";
+import { ChevronDown, Plus, RefreshCw, Pause, Trash2, Edit2, Share2 } from "lucide-react";
+import { ShareModal } from "./ShareModal";
 import { Group } from "@/types/group";
 import { Subscription } from "@/types/subscription";
 import { StatusBadge } from "@/components/subscriptions/StatusBadge";
@@ -29,8 +30,9 @@ const BTN_SM: React.CSSProperties = {
 };
 
 export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen = false }: Props) {
-  const { user }        = useAuth();
-  const [open, setOpen] = useState(defaultOpen);
+  const { user }           = useAuth();
+  const [open, setOpen]    = useState(defaultOpen);
+  const [sharing, setSharing] = useState(false);
 
   const active  = subscriptions.filter((s) => s.status === "subscribed");
   const monthly = active.reduce((a, s) => a + s.amount, 0);
@@ -215,6 +217,18 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
                   <Edit2 size={12} />Edit Group
                 </button>
                 <button
+                  className="btn-sm"
+                  style={{
+                    ...BTN_SM,
+                    color: group.shareToken ? "var(--green)" : "var(--text2)",
+                    borderColor: group.shareToken ? "rgba(34,197,94,0.3)" : "var(--border)",
+                    background: group.shareToken ? "var(--greenbg)" : "var(--surface)",
+                  }}
+                  onClick={() => setSharing(true)}
+                >
+                  <Share2 size={12} />{group.shareToken ? "Shared" : "Share"}
+                </button>
+                <button
                   className="btn-danger"
                   style={{ ...BTN_SM, marginLeft: "auto", color: "var(--red)", background: "var(--redbg)", borderColor: "rgba(239,68,68,0.22)" }}
                   onClick={handleDelete}
@@ -226,6 +240,14 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
           </motion.div>
         )}
       </AnimatePresence>
+
+      {sharing && (
+        <ShareModal
+          group={group}
+          subscriptions={subscriptions}
+          onClose={() => setSharing(false)}
+        />
+      )}
     </motion.div>
   );
 }
