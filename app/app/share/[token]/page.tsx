@@ -135,15 +135,20 @@ export default function SharePage() {
           <div className="sp-group-icon" style={{ background: groupColor + "20", border: `1px solid ${groupColor}40` }}>
             <div style={{ width: 12, height: 12, borderRadius: "50%", background: groupColor }} />
           </div>
-          <div>
-            <div className="sp-group-name">{data!.groupName}</div>
+          <div style={{ minWidth: 0 }}>
+            <div className="sp-header-top-row">
+              <div className="sp-group-name">{data!.groupName}</div>
+              <div className="sp-badge sp-badge-inline">
+                <ExternalLink size={10} />Read-only
+              </div>
+            </div>
             <div className="sp-group-meta">
               Shared by <strong style={{ color: "rgba(255,255,255,0.55)" }}>{data!.ownerName}</strong>
               {" "}· Updated {timeAgo(data!.updatedAt)}
             </div>
           </div>
         </div>
-        <div className="sp-badge">
+        <div className="sp-badge sp-badge-desktop">
           <ExternalLink size={10} />Read-only
         </div>
       </header>
@@ -218,32 +223,35 @@ export default function SharePage() {
                           : sub.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
 
-                      {/* Name + desc */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub.name}</div>
-                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
-                          {sub.description || sub.renewalPeriod}
-                        </div>
-                      </div>
-
-                      {/* Right side */}
-                      <div className="sp-sub-right">
-                        {sub.nextDueDate && sub.status !== "cancelled" && (
-                          <div style={{
-                            fontSize: 11, fontWeight: urgent ? 600 : 400,
-                            color: urgent ? "#f59e0b" : "rgba(255,255,255,0.35)",
-                            textAlign: "right",
-                          }}>
-                            {fmtDate(sub.nextDueDate)}
-                            <div style={{ fontSize: 10, marginTop: 1 }}>{relDays(sub.nextDueDate)}</div>
+                      {/* Content block — two rows on mobile */}
+                      <div className="sp-sub-content">
+                        {/* Row 1: name + amount */}
+                        <div className="sp-sub-row1">
+                          <div className="sp-sub-name">{sub.name}</div>
+                          <div className="sp-sub-amount">
+                            {currencySymbol(sub.currency)}{sub.amount.toFixed(2)}
                           </div>
-                        )}
-                        <div style={{
-                          fontSize: 10.5, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
-                          background: meta.bg, color: meta.color, whiteSpace: "nowrap",
-                        }}>{meta.label}</div>
-                        <div style={{ fontSize: 14, fontWeight: 800, minWidth: 50, textAlign: "right" }}>
-                          {currencySymbol(sub.currency)}{sub.amount.toFixed(2)}
+                        </div>
+                        {/* Row 2: description + badge + date */}
+                        <div className="sp-sub-row2">
+                          <div className="sp-sub-desc">
+                            {sub.description || sub.renewalPeriod}
+                          </div>
+                          <div className="sp-sub-meta">
+                            <div style={{
+                              fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 5,
+                              background: meta.bg, color: meta.color, whiteSpace: "nowrap", flexShrink: 0,
+                            }}>{meta.label}</div>
+                            {sub.nextDueDate && sub.status !== "cancelled" && (
+                              <div style={{
+                                fontSize: 11, fontWeight: urgent ? 600 : 400,
+                                color: urgent ? "#f59e0b" : "rgba(255,255,255,0.32)",
+                                whiteSpace: "nowrap", flexShrink: 0,
+                              }}>
+                                {fmtDate(sub.nextDueDate)} · {relDays(sub.nextDueDate)}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -386,24 +394,28 @@ const CSS = `
     position: sticky; top: 0; z-index: 10;
     border-bottom: 1px solid rgba(255,255,255,0.08);
     padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12;
+    display: flex; align-items: center; gap: 12;
     background: rgba(7,10,20,0.88);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
-  .sp-header-left { display: flex; align-items: center; gap: 12; min-width: 0; }
+  .sp-header-left { display: flex; align-items: center; gap: 12; flex: 1; min-width: 0; }
+  .sp-header-top-row { display: flex; align-items: center; gap: 8; flex-wrap: wrap; }
   .sp-group-icon {
     width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
   }
-  .sp-group-name { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sp-group-meta { font-size: 11px; color: rgba(255,255,255,0.32); margin-top: 2px; }
+  .sp-group-name { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+  .sp-group-meta { font-size: 11px; color: rgba(255,255,255,0.32); margin-top: 3px; }
   .sp-badge {
     display: flex; align-items: center; gap: 5; flex-shrink: 0;
-    font-size: 10.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
     color: rgba(255,255,255,0.35); white-space: nowrap;
   }
+  /* on mobile the badge lives inside the header-top-row, hide the standalone one */
+  .sp-badge-desktop { display: none; }
+  .sp-badge-inline  { display: flex; }
 
   /* Body wrapper */
   .sp-body {
@@ -461,15 +473,37 @@ const CSS = `
   .sp-sub-list { display: flex; flex-direction: column; }
   .sp-sub-row {
     display: flex; align-items: center; gap: 12;
-    padding: 12px 0;
+    padding: 13px 0;
   }
   .sp-sub-logo {
-    width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     font-size: 10px; font-weight: 800; overflow: hidden;
+    align-self: flex-start; margin-top: 1px;
   }
-  .sp-sub-right {
-    display: flex; align-items: center; gap: 8; flex-shrink: 0;
+  /* content takes full remaining width */
+  .sp-sub-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  /* row 1: name left, amount right */
+  .sp-sub-row1 {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8;
+  }
+  .sp-sub-name {
+    font-size: 13.5px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+  .sp-sub-amount {
+    font-size: 14px; font-weight: 800; flex-shrink: 0;
+  }
+  /* row 2: description left, badge+date right */
+  .sp-sub-row2 {
+    display: flex; align-items: center; justify-content: space-between; gap: 8;
+  }
+  .sp-sub-desc {
+    font-size: 11px; color: rgba(255,255,255,0.3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+  .sp-sub-meta {
+    display: flex; align-items: center; gap: 6; flex-shrink: 0;
   }
 
   /* Sidebar */
@@ -490,6 +524,8 @@ const CSS = `
   @media (min-width: 768px) {
     .sp-header { padding: 18px 40px; }
     .sp-group-name { font-size: 18px; }
+    .sp-badge-desktop { display: flex; }
+    .sp-badge-inline  { display: none; }
     .sp-body   { padding: 36px 32px 0; gap: 22px; }
     .sp-kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
     .sp-kpi-value { font-size: 24px; }
