@@ -2,6 +2,8 @@
 *.png
 *.jpg
 *.jpeg
+!app/app/icon.png
+!app/subtrack-logo.png
 
 # macOS
 .DS_Store

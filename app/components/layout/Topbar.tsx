@@ -90,7 +90,7 @@ export function Topbar() {
 
       <button
         className="btn-primary"
-        onClick={openAdd}
+        onClick={() => openAdd()}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "7px 15px", borderRadius: 10,

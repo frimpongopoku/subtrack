@@ -28,9 +28,8 @@ export default function GroupsPage() {
     setGroupModal("edit");
   }
 
-  // Pre-open "Add New" subscription modal from within a group card
-  function handleAddSub() {
-    openAdd();
+  function handleAddSub(groupId: string) {
+    openAdd(groupId);
   }
 
   return (

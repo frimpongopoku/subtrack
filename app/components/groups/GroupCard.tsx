@@ -16,7 +16,7 @@ interface Props {
   group:         Group;
   subscriptions: Subscription[];
   onEdit:        (group: Group) => void;
-  onAddSub:      () => void;
+  onAddSub:      (groupId: string) => void;
   defaultOpen?:  boolean;
 }
 
@@ -200,7 +200,7 @@ export function GroupCard({ group, subscriptions, onEdit, onAddSub, defaultOpen 
 
               {/* Group actions */}
               <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-                <button className="btn-sm" style={BTN_SM} onClick={onAddSub}>
+                <button className="btn-sm" style={BTN_SM} onClick={() => onAddSub(group.id)}>
                   <Plus size={12} />Add Subscription
                 </button>
                 {active.length > 0 && (

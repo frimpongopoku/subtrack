@@ -52,11 +52,12 @@ function toDateString(ts: Timestamp | undefined): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 interface Props {
-  onClose:       () => void;
-  subscription?: Subscription;
+  onClose:         () => void;
+  subscription?:   Subscription;
+  defaultGroupId?: string | null;
 }
 
-export function SubscriptionFormModal({ onClose, subscription }: Props) {
+export function SubscriptionFormModal({ onClose, subscription, defaultGroupId }: Props) {
   const { user }   = useAuth();
   const { groups } = useGroupsContext();
   const isEdit     = !!subscription;
@@ -79,7 +80,7 @@ export function SubscriptionFormModal({ onClose, subscription }: Props) {
       recurring:     subscription?.recurring     ?? true,
       renewalPeriod: subscription?.renewalPeriod ?? "monthly",
       status:        subscription?.status        ?? "subscribed",
-      groupId:       subscription?.groupId       ?? null,
+      groupId:       subscription?.groupId       ?? defaultGroupId ?? null,
       startDate:     toDateString(subscription?.startDate),
       nextDueDate:   toDateString(subscription?.nextDueDate),
     },

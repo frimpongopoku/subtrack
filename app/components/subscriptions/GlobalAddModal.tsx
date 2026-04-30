@@ -4,7 +4,7 @@ import { useModal } from "@/contexts/ModalContext";
 import { SubscriptionFormModal } from "./SubscriptionFormModal";
 
 export function GlobalAddModal() {
-  const { addOpen, closeAdd } = useModal();
+  const { addOpen, closeAdd, defaultGroupId } = useModal();
   if (!addOpen) return null;
-  return <SubscriptionFormModal onClose={closeAdd} />;
+  return <SubscriptionFormModal onClose={closeAdd} defaultGroupId={defaultGroupId} />;
 }
