@@ -223,7 +223,7 @@ export default function SharePage() {
                           : sub.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
 
-                      {/* Content block — two rows on mobile */}
+                      {/* Content block — 3 rows */}
                       <div className="sp-sub-content">
                         {/* Row 1: name + amount */}
                         <div className="sp-sub-row1">
@@ -232,26 +232,27 @@ export default function SharePage() {
                             {currencySymbol(sub.currency)}{sub.amount.toFixed(2)}
                           </div>
                         </div>
-                        {/* Row 2: description + badge + date */}
-                        <div className="sp-sub-row2">
+                        {/* Row 2: description only */}
+                        {(sub.description || sub.renewalPeriod) && (
                           <div className="sp-sub-desc">
                             {sub.description || sub.renewalPeriod}
                           </div>
-                          <div className="sp-sub-meta">
+                        )}
+                        {/* Row 3: status badge + due date */}
+                        <div className="sp-sub-meta">
+                          <div style={{
+                            fontSize: 10.5, fontWeight: 700, padding: "3px 9px", borderRadius: 6,
+                            background: meta.bg, color: meta.color, whiteSpace: "nowrap",
+                          }}>{meta.label}</div>
+                          {sub.nextDueDate && sub.status !== "cancelled" && (
                             <div style={{
-                              fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 5,
-                              background: meta.bg, color: meta.color, whiteSpace: "nowrap", flexShrink: 0,
-                            }}>{meta.label}</div>
-                            {sub.nextDueDate && sub.status !== "cancelled" && (
-                              <div style={{
-                                fontSize: 11, fontWeight: urgent ? 600 : 400,
-                                color: urgent ? "#f59e0b" : "rgba(255,255,255,0.32)",
-                                whiteSpace: "nowrap", flexShrink: 0,
-                              }}>
-                                {fmtDate(sub.nextDueDate)} · {relDays(sub.nextDueDate)}
-                              </div>
-                            )}
-                          </div>
+                              fontSize: 11, fontWeight: urgent ? 600 : 400,
+                              color: urgent ? "#f59e0b" : "rgba(255,255,255,0.35)",
+                              whiteSpace: "nowrap",
+                            }}>
+                              {fmtDate(sub.nextDueDate)} · {relDays(sub.nextDueDate)}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -393,25 +394,25 @@ const CSS = `
   .sp-header {
     position: sticky; top: 0; z-index: 10;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 12;
-    background: rgba(7,10,20,0.88);
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 14;
+    background: rgba(7,10,20,0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
-  .sp-header-left { display: flex; align-items: center; gap: 12; flex: 1; min-width: 0; }
-  .sp-header-top-row { display: flex; align-items: center; gap: 8; flex-wrap: wrap; }
+  .sp-header-left { display: flex; align-items: center; gap: 14; flex: 1; min-width: 0; }
+  .sp-header-top-row { display: flex; align-items: center; gap: 10; margin-bottom: 4px; }
   .sp-group-icon {
-    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
   }
-  .sp-group-name { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
-  .sp-group-meta { font-size: 11px; color: rgba(255,255,255,0.32); margin-top: 3px; }
+  .sp-group-name { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; line-height: 1; }
+  .sp-group-meta { font-size: 11.5px; color: rgba(255,255,255,0.35); line-height: 1.4; }
   .sp-badge {
     display: flex; align-items: center; gap: 5; flex-shrink: 0;
-    font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.35); white-space: nowrap;
+    font-size: 10.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.4); white-space: nowrap;
   }
   /* on mobile the badge lives inside the header-top-row, hide the standalone one */
   .sp-badge-desktop { display: none; }
@@ -472,39 +473,33 @@ const CSS = `
   /* Subscription rows */
   .sp-sub-list { display: flex; flex-direction: column; }
   .sp-sub-row {
-    display: flex; align-items: center; gap: 12;
-    padding: 13px 0;
+    display: flex; align-items: flex-start; gap: 14;
+    padding: 16px 0;
   }
   .sp-sub-logo {
-    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 800; overflow: hidden;
-    align-self: flex-start; margin-top: 1px;
+    font-size: 11px; font-weight: 800; overflow: hidden;
+    margin-top: 1px;
   }
-  /* content takes full remaining width */
-  .sp-sub-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  /* content takes full remaining width, 3 rows */
+  .sp-sub-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
   /* row 1: name left, amount right */
   .sp-sub-row1 {
-    display: flex; align-items: baseline; justify-content: space-between; gap: 8;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10;
   }
   .sp-sub-name {
-    font-size: 13.5px; font-weight: 600;
+    font-size: 14px; font-weight: 700;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
   }
-  .sp-sub-amount {
-    font-size: 14px; font-weight: 800; flex-shrink: 0;
-  }
-  /* row 2: description left, badge+date right */
-  .sp-sub-row2 {
-    display: flex; align-items: center; justify-content: space-between; gap: 8;
-  }
+  .sp-sub-amount { font-size: 14px; font-weight: 800; flex-shrink: 0; }
+  /* row 2: description */
   .sp-sub-desc {
-    font-size: 11px; color: rgba(255,255,255,0.3);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    font-size: 11.5px; color: rgba(255,255,255,0.35);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .sp-sub-meta {
-    display: flex; align-items: center; gap: 6; flex-shrink: 0;
-  }
+  /* row 3: badge + date, always on its own line */
+  .sp-sub-meta { display: flex; align-items: center; gap: 8; flex-wrap: nowrap; }
 
   /* Sidebar */
   .sp-sidebar { display: flex; flex-direction: column; gap: 16px; }
